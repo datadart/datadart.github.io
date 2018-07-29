@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<Title>Page1 </Title> 
+<header>
+    <div id="header">
+	<h1>US Gun Violence</h1>
+    <h2>2008</h2>
+    </div>
+    <div id="nav">
+	<nav>
+	<ul>
+		<li><a href="index.html">Home</a></li>
+		<li><a href="page1.html">2008</a></li>
+		<li><a href="page2.html">2010</a></li>
+        <li><a href="page3.html">2012</a></li>
+        <li><a href="page4.html">2014</a></li>
+        <li><a href="page5.html">2016</a></li>
+        <li><a href="page6.html">2018</a></li>
+        <li><a href="About.html">About the Visualization</a></li>
+	</ul>
+	</nav>
+    </div>
+    
+
+	<h2>1. Chart </h2>
+        <p><a href="index.html"><-Home</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="page2.html">Next Slide -></a></p>
+    <hr></hr>
+	<h2>Gun Violence in 2008 </h2>
+
+</header>
+<!-- Example based on http://bl.ocks.org/NPashaP/a74faf20b492ad377312 -->
+<!-- Example based on https://bl.ocks.org/mbostock/4060606-->
+
+<style>
+#header {
+    background-color:black;
+    color:white;
+    text-align:center;
+    padding:5px;
+}
+#nav {
+    line-height:30px;
+    background-color:#eeeeee;
+    height:300px;
+    width:120px;
+    float:left;
+    padding:5px; 
+}
+#section {
+    width:500px;
+    height:250px;
+    padding:10px; 
+}
+    body {
+	font: 11px sans-serif;
+}
+        
+	.state{
+		fill: none;
+		stroke: #a9a9a9;
+		stroke-width: 1;
+	}
+	.state:hover{
+		fill-opacity:0.2;
+	}
+	#tooltip {   
+		position: absolute;           
+		text-align: center;
+		padding: 20px;             
+		margin: 10px;
+		font: 12px sans-serif;        
+		background: lightsteelblue;   
+		border: 1px;      
+		border-radius: 2px;           
+		pointer-events: none;         
+	}
+	#tooltip h4{
+		margin:0;
+		font-size:14px;
+	}
+	#tooltip{
+		background:rgba(0,0,0,0.9);
+		border:1px solid grey;
+		border-radius:5px;
+		font-size:12px;
+		width:auto;
+		padding:4px;
+		color:white;
+		opacity:0;
+	}
+	#tooltip table{
+		table-layout:fixed;
+	}
+	#tooltip tr td{
+		padding:0;
+		margin:0;
+	}
+	#tooltip tr td:nth-child(1){
+		width:50px;
+	}
+	#tooltip tr td:nth-child(2){
+		text-align:center;
+	}
+</style>
+<body>
+<div id="tooltip"></div><!-- div to hold tooltip. -->
+<svg width="960" height="600" id="statesvg"></svg> <!-- svg to hold the map. -->
+<script src="data_page/uStates.js"></script> <!-- creates uStates. -->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://d3js.org/topojson.v2.min.js"></script>
+    
+<script>
+/*  color scheme */
+    var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+    
+    var x = d3.scaleLinear()
+    .domain([1, 20])
+    .rangeRound([550, 810]);
+
+var color = d3.scaleThreshold()
+    .domain(d3.range(1, 10))
+    .range(d3.schemeBuPu[9]);/*schemeBlues*/
+
+var g = svg.append("g")
+    .attr("class", "key")
+    .attr("transform", "translate(0,40)");
+
+g.selectAll("rect")
+  .data(color.range().map(function(d) {
+      d = color.invertExtent(d);
+      if (d[0] == null) d[0] = x.domain()[0];
+      if (d[1] == null) d[1] = x.domain()[1];
+      return d;
+    }))
+  .enter().append("rect")
+    .attr("height", 8)
+    .attr("x", function(d) { return x(d[0]); })
+    .attr("width", function(d) { return x(d[1]) - x(d[0]); })
+    .attr("fill", function(d) { return color(d[0]); });
+
+g.append("text")
+    .attr("class", "caption")
+    .attr("x", x.range()[0])
+    .attr("y", -6)
+    .attr("fill", "#000")
+    .attr("text-anchor", "start")
+    .attr("font-weight", "bold")
+    .text("Gun Violence");
+
+g.call(d3.axisBottom(x)
+    .tickSize(20)
+    .tickFormat(function(x, i) { return i ? x+i : x ; })
+    .tickValues(color.domain()))
+  .select(".domain")
+    .remove();
+
+    
+    
+    
+    
+
+	function tooltipHtml(n, d){	/* function to create html content string in tooltip div. */
+		return "<h4>"+n+"</h4><table>"+
+			"<tr><td>Deaths</td><td>"+(d.gun_violence)+"</td></tr>"
+			"</table>";
+	}
+	
+	var sampleData ={};	
+	var Data = {"AL":5,"AK":6,"AZ":9,"AR":5,"CA":18,"CO":4,"CT":5,"DE":4,"DC":6,"FL":6,"GA":5,"HI":4,"ID":5,"IL":6,"IN":5,"IA":4,"KS":4,"KY":6,"LS":4,"ME":5,"MD":4,"MA":5,"MI":7,"MN":5,"MS":6,"MO":5,"MT":4,"NE":3,"NV":6,"NH":3,"NJ":5,"NM":4,"NY":5,"NC":5,"ND":3,"OH":6,"OK":3,"OR":5,"PA":5,"RI":7,"SC":6,"SD":2,"TN":6,"TX":10,"UT":3,"VT":4,"VA":3,"WA":5,"WV":4,"WI":4,"WY":2};
+    ["HI", "AK", "FL", "SC", "GA", "AL", "NC", "TN", "RI", "CT", "MA",
+	"ME", "NH", "VT", "NY", "NJ", "PA", "DE", "MD", "WV", "KY", "OH", 
+	"MI", "WY", "MT", "ID", "WA", "DC", "TX", "CA", "AZ", "NV", "UT", 
+	"CO", "NM", "OR", "ND", "SD", "NE", "IA", "MS", "IN", "IL", "MN", 
+	"WI", "MO", "AR", "OK", "KS", "LS", "VA"]
+		.forEach(function(d){ 
+			sampleData[d]={gun_violence:Data[d], color:color(Data[d])}; 
+		});
+	
+	/* draw states on id #statesvg */	
+	uStates.draw("#statesvg", sampleData, tooltipHtml);
+	
+	d3.select(self.frameElement).style("height", "600px"); 
+    z
+
+</script>
+
+</body>
+    <div id="section">
+	<h2>2. Description </h2>
+	<p>It shows the Gun Violence by States in 2008. A separate blue purple palette is used to distinguish states by gun violence rates. The deeper the color, the higher the gun violence. You can see the detailed value when you put the mouse over the map.</p>
+	
+    </div>
